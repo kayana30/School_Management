@@ -90,10 +90,9 @@ class StudentsController extends Controller
         'teacher_id' => 'required|exists:teachers,id',
         'subjects' => 'required|array',
         'subjects.*' => 'exists:subjects,id',
-        'photo' => 'nullable|image|max:2048', // optional photo upload validation
+        'photo' => 'nullable|image|max:2048',
     ]);
 
-    // Update student basic info
     $student->update([
         'register_no' => $validated['register_no'],
         'name' => $validated['name'],
@@ -105,16 +104,15 @@ class StudentsController extends Controller
         'teacher_id' => $validated['teacher_id'],
     ]);
 
-    // Handle photo upload if exists
+
     if ($request->hasFile('photo')) {
-        // Optionally delete old photo here if needed
+
 
         $path = $request->file('photo')->store('photos', 'public');
         $student->photo = $path;
         $student->save();
     }
 
-    // Sync subjects (many-to-many)
     $student->subjects()->sync($validated['subjects']);
 
     return redirect()->route('students.index')->with('success', 'Student updated successfully.');
